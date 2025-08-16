@@ -2,9 +2,6 @@
 
 TypeScript enhances JavaScript by adding static type checking, which helps catch errors early and improves code quality. 
 
-git config --global user.email "ashutoshkumarchoubey@gmail.com"
-  git config --global user.name "Ashutosh Choubey"
-
 ## Why Use Types in TypeScript?
 
 Types in TypeScript enable static analysis, allowing errors to be caught during development rather than at runtime. This boosts developer productivity and code reliability.
