@@ -86,8 +86,9 @@ let anotherBig: bigint = BigInt(9007199254740991);
 The `symbol` type represents unique, immutable values primarily used as object property keys. Introduced in ES6, it's fully supported in TypeScript for type-safe coding. Unlike strings or numbers, every symbol is guaranteed to be distinct—even if created with the same description—which prevents accidental property collisions.
 
 - **Key Characteristics**:
-  - **Uniqueness**: No two symbols are ever equal, even if they share the same label.
-  - **Immutability**: Once created, a symbol can't be changed.
+  - **Uniqueness**: Symbols created with `Symbol()` are always unique — two separate `Symbol()` calls never produce equal values. However, `Symbol.for(key)` creates or returns a global shared symbol for `key`, so `Symbol.for('x') === Symbol.for('x')` is `true`.
+  - **Immutability (symbol identity)**: The Symbol primitive's identity (and its description) is immutable — you cannot change a symbol after it's created.
+  - **Property mutability**: However, properties on objects that use symbols as keys are ordinary object properties and can be added, changed, or deleted; the immutability refers to the symbol value itself, not to symbol-keyed object properties.
   - **Non-enumerable**: Symbol-keyed properties don't appear in loops like `for...in` or methods like `Object.keys()`, making them great for "hidden" data.
 
 In TypeScript, you declare a symbol like this:
@@ -159,6 +160,34 @@ class Countdown {
 const timer = new Countdown(3);
 for (const num of timer) {
   console.log(num);  // Outputs: 3, 2, 1
+}
+
+
+// A custom object
+const myNumbers = {
+  start: 1,
+  end: 5,
+  
+  // Defining Symbol.iterator to make this object iterable
+  [Symbol.iterator]() {
+    let current = this.start;
+    let end = this.end;
+
+    return {
+      next() {
+        if (current <= end) {
+          return { value: current++, done: false }; // yield next number
+        } else {
+          return { done: true }; // end of iteration
+        }
+      }
+    };
+  }
+};
+
+// Now we can use for...of on our object
+for (let num of myNumbers) {
+  console.log(num);
 }
 ```
 
