@@ -20,3 +20,28 @@ console.log(Object.keys(user));
 console.log(Object.getOwnPropertySymbols(user)); // [Symbol(), Symbol(Description), Symbol(Description)]
 console.log(Reflect.ownKeys(user)); // ['name', 'age', Symbol(), Symbol(Description), Symbol(Description)]
 
+
+class Countdown {
+  private current: number;
+
+  constructor(start: number) {
+    this.current = start;
+  }
+
+  [Symbol.iterator]() {
+    let current = this.current;
+    return {
+      next: () => ({
+        value: current,
+        done: current-- < 1
+      })
+    };
+  }
+}
+
+const count = new Countdown(5);
+for (const num of count) {
+  console.log(num); // 5, 4, 3, 2, 1
+}
+
+

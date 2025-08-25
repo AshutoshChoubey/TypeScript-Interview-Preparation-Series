@@ -309,6 +309,17 @@ type ApiResponse =
   | { status: "success"; data: any }
   | { status: "error"; message: string }
   | { status: "loading" };
+
+  function handleResponse(res: ApiResponse) {
+  if (res.status === "success") {
+    console.log("Data:", res.data);
+  } else if (res.status === "error") {
+    console.error("Error:", res.message);
+  } else if (res.status === "loading") {
+    console.log("Loading...");
+  }
+}
+
 ```
 
 **Use Cases:** API responses, form states, flexible parameters, discriminated unions.
@@ -387,6 +398,31 @@ interface StringDictionary {
 interface NumberArray {
   [index: number]: number;
 }
+
+interface StringDictionary {
+  [key: string]: string;
+}
+
+const user: StringDictionary = {
+  name: "Ashutosh",
+  city: "Patna",
+  country: "India",
+};
+
+console.log(user["name"]); // ✅ "Ashutosh"
+console.log(user["city"]); // ✅ "Patna"
+user["age"] = 25; // ❌ Error: number not assignable to string
+interface NumberArray {
+  [index: number]: number;
+}
+
+const fibonacci: NumberArray = [0, 1, 1, 2, 3, 5, 8];
+
+console.log(fibonacci[3]); // ✅ 2
+console.log(fibonacci[6]); // ✅ 8
+fibonacci[7] = "thirteen"; // ❌ Error: string not assignable to number
+
+
 ```
 
 **Use Cases:** API contracts, class blueprints, configuration schemas, type safety for objects.

@@ -19,28 +19,23 @@ console.log(user[s2]); // 'value2'
 console.log(Object.keys(user));
 console.log(Object.getOwnPropertySymbols(user)); // [Symbol(), Symbol(Description), Symbol(Description)]
 console.log(Reflect.ownKeys(user)); // ['name', 'age', Symbol(), Symbol(Description), Symbol(Description)]
-// A custom object
-const myNumbers = {
-    start: 1,
-    end: 5,
-    // Defining Symbol.iterator to make this object iterable
+class Countdown {
+    current;
+    constructor(start) {
+        this.current = start;
+    }
     [Symbol.iterator]() {
-        let current = this.start;
-        let end = this.end;
+        let current = this.current;
         return {
-            next() {
-                if (current <= end) {
-                    return { value: current++, done: false }; // yield next number
-                }
-                else {
-                    return { done: true }; // end of iteration
-                }
-            }
+            next: () => ({
+                value: current,
+                done: current-- < 1
+            })
         };
     }
-};
-// Now we can use for...of on our object
-for (let num of myNumbers) {
-    console.log(num);
+}
+const count = new Countdown(5);
+for (const num of count) {
+    console.log(num); // 5, 4, 3, 2, 1
 }
 //# sourceMappingURL=4symbol.js.map
