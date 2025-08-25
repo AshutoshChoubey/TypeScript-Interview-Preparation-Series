@@ -486,6 +486,121 @@ function logLength<T extends Lengthwise>(arg: T): T {
 }
 ```
 
+## 🔹 **Generic Functions**
+
+```typescript
+// Generic identity function
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+let num = identity<number>(42);    // Explicit type
+let str = identity("Hello");       // Type inferred
+
+console.log(num);  // 42
+console.log(str);  // Hello
+
+// Generic function with two types
+function pair<T, U>(first: T, second: U): [T, U] {
+  return [first, second];
+}
+
+let userPair = pair("Alice", 25);   // [string, number]
+let flagPair = pair(true, "Done");  // [boolean, string]
+```
+
+---
+
+## 🔹 **Generic Interfaces**
+
+```typescript
+// A generic container interface
+interface Container<Type> {
+  value: Type;
+  getValue(): Type;
+}
+
+// Usage with string
+const stringContainer: Container<string> = {
+  value: "Hello TS",
+  getValue() {
+    return this.value;
+  },
+};
+
+console.log(stringContainer.getValue()); // Hello TS
+
+// Generic pair interface
+interface Pair<T, K> {
+  first: T;
+  second: K;
+}
+
+const numberPair: Pair<number, number> = { first: 10, second: 20 };
+const mixedPair: Pair<string, boolean> = { first: "Active", second: true };
+
+console.log(numberPair); // { first: 10, second: 20 }
+console.log(mixedPair);  // { first: "Active", second: true }
+```
+
+---
+
+## 🔹 **Generic Classes**
+
+```typescript
+class Stack<T> {
+  private items: T[] = [];
+
+  push(item: T): void {
+    this.items.push(item);
+  }
+
+  pop(): T | undefined {
+    return this.items.pop();
+  }
+}
+
+// Stack of numbers
+const numberStack = new Stack<number>();
+numberStack.push(10);
+numberStack.push(20);
+console.log(numberStack.pop()); // 20
+
+// Stack of strings
+const stringStack = new Stack<string>();
+stringStack.push("A");
+stringStack.push("B");
+console.log(stringStack.pop()); // "B"
+```
+
+---
+
+## 🔹 **Generic Constraints**
+
+```typescript
+// Constraint: T must have a length property
+interface Lengthwise {
+  length: number;
+}
+
+function logLength<T extends Lengthwise>(arg: T): T {
+  console.log("Length:", arg.length);
+  return arg;
+}
+
+// Works with arrays and strings
+logLength("Hello World");         // Length: 11
+logLength([1, 2, 3, 4]);          // Length: 4
+logLength({ length: 100, name: "Box" }); // Length: 100
+
+// ❌ Error: number has no "length" property
+// logLength(42);
+```
+
+---
+
+
+
 **Use Cases:** Reusable components, type-safe collections, API wrappers, utility functions.
 
 ### 8. Type Aliases
@@ -595,6 +710,174 @@ type StatusMap = Record<"pending" | "success" | "error", string>;
 // Non-nullable type
 type NonNullableString = NonNullable<string | null | undefined>;
 ```
+
+
+## 🎯 **Object Manipulation**
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+}
+```
+
+### 1. `Partial<T>` → Make all properties optional
+
+Use case: **Updating a user** (you may not update all fields).
+
+```typescript
+type PartialUser = Partial<User>;
+
+function updateUser(id: string, updates: PartialUser) {
+  console.log(`Updating user ${id} with`, updates);
+}
+
+// ✅ Only updating name
+updateUser("1", { name: "Alice" });
+```
+
+---
+
+### 2. `Required<T>` → Make all properties required
+
+Use case: **Validating a user before saving** (no field should be missing).
+
+```typescript
+type RequiredUser = Required<User>;
+
+function saveUser(user: RequiredUser) {
+  console.log("Saving user:", user);
+}
+
+// ❌ Error if missing any property
+saveUser({
+  id: "1",
+  name: "John",
+  email: "john@example.com",
+  password: "secret",
+});
+```
+
+---
+
+### 3. `Pick<T, K>` → Pick specific properties
+
+Use case: **Returning only safe fields** for frontend.
+
+```typescript
+type PublicUser = Pick<User, "id" | "name" | "email">;
+
+function getPublicUser(user: User): PublicUser {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  };
+}
+```
+
+---
+
+### 4. `Omit<T, K>` → Omit specific properties
+
+Use case: **Removing sensitive data** like password.
+
+```typescript
+type UserWithoutPassword = Omit<User, "password">;
+
+function getSafeUser(user: User): UserWithoutPassword {
+  const { password, ...rest } = user;
+  return rest;
+}
+```
+
+---
+
+### 5. `Readonly<T>` → Make properties immutable
+
+Use case: **Prevent accidental changes** to a user object.
+
+```typescript
+type ImmutableUser = Readonly<User>;
+
+function printUser(user: ImmutableUser) {
+  console.log(`User: ${user.name}`);
+  // user.name = "Changed"; ❌ Error: cannot modify readonly property
+}
+```
+
+---
+
+## ⚡ **Function Utilities**
+
+```typescript
+function getUser(): { id: string; name: string } {
+  return { id: "1", name: "John" };
+}
+```
+
+### 6. `ReturnType<T>` → Extract return type of a function
+
+Use case: **Reusing the same return type without duplication.**
+
+```typescript
+type UserType = ReturnType<typeof getUser>;
+
+const user: UserType = { id: "2", name: "Alice" };
+```
+
+---
+
+### 7. `Parameters<T>` → Extract parameter types
+
+Use case: **Wrapping a function call safely.**
+
+```typescript
+type GetUserParams = Parameters<typeof getUser>; // []
+
+function callGetUser(...args: GetUserParams) {
+  return getUser(...args);
+}
+```
+
+---
+
+## 🚀 **Advanced Utilities**
+
+### 8. `Record<K, T>` → Object with specific keys & values
+
+Use case: **Status messages for UI.**
+
+```typescript
+type StatusMap = Record<"pending" | "success" | "error", string>;
+
+const statusMessages: StatusMap = {
+  pending: "Loading...",
+  success: "Data loaded!",
+  error: "Something went wrong",
+};
+```
+
+---
+
+### 9. `NonNullable<T>` → Exclude `null` & `undefined`
+
+Use case: **Ensure safe non-null value.**
+
+```typescript
+type NonNullableString = NonNullable<string | null | undefined>;
+
+function printText(text: NonNullableString) {
+  console.log(text.toUpperCase());
+}
+
+printText("Hello"); // ✅ Works
+// printText(null); ❌ Error
+```
+
+
 
 **Use Cases:** API type transformations, form handling, data validation, type safety.
 
