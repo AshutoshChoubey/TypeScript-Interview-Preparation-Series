@@ -1,8 +1,10 @@
 let id : string | number = 101;
 id = "202";
 id = 303;
+// id=true
 
 type Status = "Pending" | "InProgress" | "Completed" | "Failed";
+type customerId = string | number;
 let taskStatus: Status = "Pending";
 taskStatus = "InProgress";
 // taskStatus = "Completed1"; // Error: Type '"Completed1"' is not assignable to type 'Status'.
@@ -31,6 +33,7 @@ type Employee = {
     employeeId:number;
     position:string;
 }   
+type ManagerName = string
 
 type staff = Person & Employee;
 // type staff = Person & Employee;
@@ -78,11 +81,26 @@ interface Admin extends User{
     removeUser:(userId:number | string)=>void;
 }   
 
+let admin1:Admin = {
+    id:2,
+    name:"admin",
+    email:"abc@abc.com",
+    adminLevel:1,
+    permissions:["read","write","delete"],
+    addUser: function(user:User){
+        console.log("User added:",user.name);
+    },
+    removeUser: function(userId:number | string){
+        console.log("User removed with id:",userId);
+    }
+}
+
 // index signature in interface
 interface StringArray{
     [index:number]:string;
 }
 let myArray:StringArray = ["apple","banana","orange"];
+
  interface NumberDictionary{
     [index:string]:number;
     length:number; // length property must be a number
@@ -97,8 +115,8 @@ let myArray:StringArray = ["apple","banana","orange"];
     [index:string]:string;
 }
 let strDict:StringDictionary = {
-    "name":"ashutosh",
-    "city":"xyz",
+    name:"ashutosh",
+    "city":"true",
 }
 
 const user: StringDictionary = {

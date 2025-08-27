@@ -7,6 +7,7 @@ var Status;
     Status[Status["Completed"] = 2] = "Completed";
     Status[Status["Failed"] = 3] = "Failed";
 })(Status || (Status = {}));
+let satatusCode = Status.Pending;
 console.log(Status.Pending); // Output: 0
 console.log(Status.InProgress); // Output: 1
 console.log(Status.Completed); // Output: 2
@@ -37,5 +38,12 @@ console.log(Direction.Up); // Output: "UP"
 console.log(Direction.Down); // Output: "DOWN"
 console.log(Direction.Left); // Output: "LEFT"
 console.log(Direction.Right); // Output: "RIGHT"
-console.log(Direction["UP"]); // Output: "Up"               
+var mixed;
+(function (mixed) {
+    mixed[mixed["No"] = 0] = "No";
+    mixed["Yes"] = "YES";
+    mixed["default"] = "DEFAULT";
+})(mixed || (mixed = {}));
+console.log(mixed.No); // Output: 0
+console.log(mixed.Yes); // Output: "YES"
 //# sourceMappingURL=enum.js.map

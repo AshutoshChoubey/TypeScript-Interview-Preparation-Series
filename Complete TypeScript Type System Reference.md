@@ -846,11 +846,19 @@ function callGetUser(...args: GetUserParams) {
 
 ## 🚀 **Advanced Utilities**
 
-### 8. `Record<K, T>` → Object with specific keys & values
 
-Use case: **Status messages for UI.**
+### **8. `Record<K, T>`**
 
-```typescript
+👉 **Definition:**
+`Record<K, T>` creates an **object type** where:
+
+* `K` → the set of keys (union of string literals)
+* `T` → the type of values
+
+
+#### Example:
+
+```ts
 type StatusMap = Record<"pending" | "success" | "error", string>;
 
 const statusMessages: StatusMap = {
@@ -860,26 +868,157 @@ const statusMessages: StatusMap = {
 };
 ```
 
+✅ Here,
+
+* The keys **must** be `"pending" | "success" | "error"`.
+* The values **must** be strings.
+* If you miss a key or add an extra one, TypeScript throws an error.
+
+#### **Use Case:**
+
+* Mapping **status codes → messages** (UI states, API status, form errors).
+* Creating **lookup tables** with strict key-value types.
+
 ---
 
-### 9. `NonNullable<T>` → Exclude `null` & `undefined`
+### **9. `NonNullable<T>`**
 
-Use case: **Ensure safe non-null value.**
+👉 **Definition:**
+`NonNullable<T>` removes `null` and `undefined` from a type.
+It ensures that the value is **always safe to use without null checks**.
 
-```typescript
+#### Example:
+
+```ts
 type NonNullableString = NonNullable<string | null | undefined>;
 
 function printText(text: NonNullableString) {
   console.log(text.toUpperCase());
 }
 
-printText("Hello"); // ✅ Works
-// printText(null); ❌ Error
+printText("Hello");   // ✅ Works
+// printText(null);   ❌ Error (TypeScript prevents it)
+```
+
+Good catch 👍 — actually, **`NonNullable<T>` is not always the same as `string | null | undefined`**.
+It works on **any type** you pass to it — and it **removes `null` and `undefined`** from that type.
+
+Let’s clarify with examples 👇
+
+---
+
+### ✅ Case 1: `string | null | undefined`
+
+```ts
+type T1 = NonNullable<string | null | undefined>;
+```
+
+Result → `string`
+👉 Removes both `null` and `undefined`.
+
+---
+
+### ✅ Case 2: `number | null`
+
+```ts
+type T2 = NonNullable<number | null>;
+```
+
+Result → `number`
+
+---
+
+### ✅ Case 3: `boolean | undefined`
+
+```ts
+type T3 = NonNullable<boolean | undefined>;
+```
+
+Result → `boolean`
+
+---
+
+### ✅ Case 4: Complex union
+
+```ts
+type User = { id: number; name: string } | null | undefined;
+
+type SafeUser = NonNullable<User>;
+```
+
+Result → `{ id: number; name: string }`
+
+---
+
+🔑 **So `NonNullable<T>` is NOT always `string | null | undefined`.**
+It depends on what `T` is — it strips away `null` and `undefined` from *any* union type.
+
+
+```ts
+type User = 
+  | { id: number; name: string } 
+  | null 
+  | undefined 
+  | string 
+  | number;
+```
+
+✅ This means:
+A `User` value can be either:
+
+* an object `{ id: number; name: string }`,
+* `null`,
+* `undefined`,
+* a `string`,
+* or a `number`.
+
+---
+
+### Using it
+
+```ts
+let u1: User = { id: 1, name: "Ashu" }; // object ✅
+let u2: User = null;                     // null ✅
+let u3: User = "Hello";                  // string ✅
+let u4: User = 42;                       // number ✅
+```
+
+---
+
+### With `NonNullable<User>`
+
+```ts
+type SafeUser = NonNullable<User>;
+```
+
+Now `SafeUser` removes `null` and `undefined`, so it becomes:
+
+```ts
+type SafeUser = { id: number; name: string } | string | number;
 ```
 
 
 
-**Use Cases:** API type transformations, form handling, data validation, type safety.
+
+✅ Here,
+
+* `NonNullable<string | null | undefined>` becomes just `string`.
+* You cannot pass `null` or `undefined`.
+
+#### **Use Case:**
+
+* **API type transformations** → when APIs return `string | null`, but you need a safe `string`.
+* **Form handling** → ensure a field value is always valid before using it.
+* **Data validation** → prevent runtime null/undefined errors.
+* **Type safety** → removes ambiguity, so functions can safely use methods (`toUpperCase`, etc.).
+
+---
+
+#### 🔑 **Key Takeaways**
+
+* `Record<K, T>` → For creating **strictly typed objects** with fixed keys and uniform value types.
+* `NonNullable<T>` → For **excluding null/undefined** and ensuring safe, predictable values.
+
 
 ### 11. Special Types
 
