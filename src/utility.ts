@@ -44,3 +44,48 @@ function PrintUser(user:ImmutableUser):void{
 }
 const immutableUser:ImmutableUser = {id:1,name:"ashutosh",email:"test@test.com",password:"12345"};
 PrintUser(immutableUser);
+
+// record<K,T>
+type status="success" | "error" | "loading"
+type statusMap = Record<status,string>;
+const statusMessages:statusMap = {
+    success:"Operation was successful",
+    error:"There was an error",
+    loading:"Loading..."
+};
+console.log(statusMessages);
+
+type nonNullableString = NonNullable<string | null | undefined>;
+function printText(text:nonNullableString):void{
+    console.log("Text:",text);
+}
+printText("Hello, World!");
+// printText(null); // ❌ Error: Argument of type 'null' is not assignable to parameter of type 'string'.
+// printText(undefined); // ❌ Error: Argument of
+
+type unionofTypes = string | number | null | undefined | boolean;
+type T2=NonNullable<unionofTypes>;
+let a:T2=123;
+let b:T2="abc";
+// let c:T2=undefined;
+let d:T2=true
+
+type User1 = 
+  | { id: number; name: string } 
+  | null 
+  | undefined 
+  | string 
+  | number;
+  let u1:User1={id:1,name:"ashutosh"};
+  let u2:User1=null;
+  let u3:User1=undefined;
+  let u4:User1="abc";
+  let u5:User1=123;
+
+  type safeUser = NonNullable<User1>;
+  let su1:safeUser={id:1,name:"ashutosh"};
+//   let su2:safeUser=null; // ❌ Error: Type 'null'
+//   let su3:safeUser=undefined; // ❌ Error: Type 'undefined 
+//   let u6:User1=true; // ❌ Error: Type 'true'
+    let su4:safeUser="abc";
+    let su5:safeUser=123;   

@@ -1045,6 +1045,96 @@ if (typeof userInput === "string") {
 
 **Use Cases:** Type-safe alternative to `any`, user input validation, API responses.
 
+---
+
+## 1. `any`
+
+* Tells TypeScript: **“Trust me, I know what I’m doing.”**
+* Turns off type checking for that value.
+* You can **assign it to anything** and **use it however you want**.
+
+Example:
+
+```ts
+let value: any;
+
+value = 42;
+value = "hello";
+value = { x: 10 };
+
+let num: number = value; // ✅ OK
+value.toUpperCase();     // ✅ No error, even if it's not a string
+```
+
+⚠️ Danger: `any` removes all safety → you might get runtime errors.
+
+---
+
+## 2. `unknown`
+
+* Tells TypeScript: **“I don’t know what this is, so you must check before using it.”**
+* Safer alternative to `any`.
+* You can assign anything to `unknown`, but you **cannot directly use it** without type narrowing or type assertion.
+
+Example:
+
+```ts
+let value: unknown;
+
+value = 42;
+value = "hello";
+
+let num: number = value; // ❌ Error: Type 'unknown' not assignable to type 'number'
+
+if (typeof value === "string") {
+  console.log(value.toUpperCase()); // ✅ Safe
+}
+```
+
+---
+
+## 3. Key Differences
+
+| Feature                 | `any` 🚨                          | `unknown` ✅                           |
+| ----------------------- | --------------------------------- | ------------------------------------- |
+| Can assign anything?    | Yes                               | Yes                                   |
+| Can use without checks? | Yes                               | ❌ No                                  |
+| Type safety             | ❌ None                            | ✅ Enforced                            |
+| Assign to other types   | ✅ Allowed                         | ❌ Not allowed without check           |
+| Use case                | Quick escape hatch (bad practice) | Safe alternative when type is unknown |
+
+---
+
+## 4. Real-Life Analogy
+
+* `any` → Like turning off seatbelts in a car 🚗💥 (you can do anything, but unsafe).
+* `unknown` → Like wearing seatbelts 🚦 (you must check before moving safely).
+
+---
+
+## 5. When to Use?
+
+* **Use `unknown`** when you truly don’t know the type (e.g., parsing JSON, external APIs).
+* **Avoid `any`**, except maybe in quick prototyping or migration from JavaScript.
+
+---
+
+👉 Example with JSON:
+
+```ts
+function parseJson(json: string): unknown {
+  return JSON.parse(json);
+}
+
+const data = parseJson('{"name": "Ashu"}');
+
+// data.name; ❌ Error: object is of type 'unknown'
+
+if (typeof data === "object" && data !== null && "name" in data) {
+  console.log((data as { name: string }).name); // ✅ Safe
+}
+```
+
 #### Never Type
 
 ```typescript
@@ -1091,6 +1181,213 @@ type Nullable<T> = {
 };
 ```
 
+
+
+```ts
+type Optional<T> = {
+  [P in keyof T]?: T[P];
+};
+```
+
+#### Explanation:
+
+* `keyof T` → gets all keys of type `T`.
+  For `User`, this is `"name" | "age"`.
+* `[P in keyof T]` → loops through each property key of `T`.
+* `?:` → makes that property **optional**.
+* `T[P]` → means "the type of property `P` in `T`".
+
+So, if `T = User`,
+
+```ts
+type User = {
+  name: string;
+  age: number;
+};
+
+type PartialUser = Optional<User>;
+```
+
+Expands into:
+
+```ts
+type PartialUser = {
+  name?: string;
+  age?: number;
+};
+```
+
+👉 This is basically the same as TypeScript’s built-in `Partial<T>` utility type.
+
+---
+
+## 2. `Nullable<T>`
+
+```ts
+type Nullable<T> = {
+  [P in keyof T]: T[P] | null;
+};
+```
+
+### Explanation:
+
+* Again, looping through each property of `T`.
+* Instead of making them optional, we allow each property to be `null` in addition to its original type.
+
+For `User`,
+
+```ts
+type NullableUser = Nullable<User>;
+```
+
+Expands into:
+
+```ts
+type NullableUser = {
+  name: string | null;
+  age: number | null;
+};
+```
+
+
+```ts
+let user1: Optional<User> = {};  
+// ✅ valid because both fields are optional
+
+let user2: Nullable<User> = { name: null, age: 30 };  
+// ✅ valid because null is allowed, but fields must exist
+```
+
+
+```ts
+type User = {
+  name: string;
+  age: number;
+};
+```
+
+---
+
+## 1. `keyof T`
+
+```ts
+type Keys = keyof User;
+```
+
+* `keyof User` means **"all the keys of User as a union"**.
+* For `User`, it is:
+
+```ts
+type Keys = "name" | "age";
+```
+
+So now we have a union of the property names.
+
+---
+
+## 2. `[P in keyof T]`
+
+This is a **mapped type loop**.
+Think of it like:
+
+👉 For each property name `P` inside `"name" | "age"`, build a new object property.
+
+Example:
+
+```ts
+type Copy<T> = {
+  [P in keyof T]: T[P];
+};
+```
+
+Now if we do:
+
+```ts
+type CopyUser = Copy<User>;
+```
+
+It expands like this:
+
+1. Take `P = "name"` → property type is `T["name"]` → `string`.
+2. Take `P = "age"` → property type is `T["age"]` → `number`.
+
+So:
+
+```ts
+type CopyUser = {
+  name: string;
+  age: number;
+};
+```
+
+It just reconstructs the same type.
+
+---
+
+## 3. `[P in keyof T]: T[P]`
+
+Now let’s see what this means with modifications:
+
+### Example A – Optional
+
+```ts
+type Optional<T> = {
+  [P in keyof T]?: T[P];
+};
+
+type PartialUser = Optional<User>;
+```
+
+Expansion step by step:
+
+* For `"name"` → `name?: string`
+* For `"age"` → `age?: number`
+
+Result:
+
+```ts
+type PartialUser = {
+  name?: string;
+  age?: number;
+};
+```
+
+---
+
+### Example B – Nullable
+
+```ts
+type Nullable<T> = {
+  [P in keyof T]: T[P] | null;
+};
+
+type NullableUser = Nullable<User>;
+```
+
+Expansion step by step:
+
+* For `"name"` → `name: string | null`
+* For `"age"` → `age: number | null`
+
+Result:
+
+```ts
+type NullableUser = {
+  name: string | null;
+  age: number | null;
+};
+```
+
+---
+
+✅ So:
+
+* `keyof T` → list of property names (like `"name" | "age"`)
+* `[P in keyof T]` → loop over each key
+* `T[P]` → type of the property at key `P` (like `string` for `name`, `number` for `age`)
+
+---
+
 #### Conditional Types
 
 ```typescript
@@ -1102,6 +1399,96 @@ type StringResponse = ApiResponse<string>; // { message: string }
 type NumberResponse = ApiResponse<number>; // { data: number }
 ```
 
+This says:
+
+* If `T` is a `string` → use `{ message: T }`
+* Otherwise → use `{ data: T }`
+
+So it works like an **if-else** for types.
+
+---
+
+## 2. Step-by-Step Example
+
+### Case 1 – `T = string`
+
+```ts
+type StringResponse = ApiResponse<string>;
+```
+
+Substitute `T = string`:
+
+```ts
+type StringResponse = string extends string
+  ? { message: string }
+  : { data: string };
+```
+
+Since `string extends string` ✅ true → choose first branch:
+
+```ts
+type StringResponse = { message: string };
+```
+
+---
+
+### Case 2 – `T = number`
+
+```ts
+type NumberResponse = ApiResponse<number>;
+```
+
+Substitute `T = number`:
+
+```ts
+type NumberResponse = number extends string
+  ? { message: number }
+  : { data: number };
+```
+
+Since `number extends string` ❌ false → choose second branch:
+
+```ts
+type NumberResponse = { data: number };
+```
+
+---
+
+## 3. Usage Example
+
+```ts
+let r1: StringResponse = { message: "Hello" }; // ✅ OK
+let r2: NumberResponse = { data: 123 };        // ✅ OK
+
+// ❌ Error: "data" not allowed here
+let r3: StringResponse = { data: "oops" };
+```
+
+---
+
+## 4. Analogy with JavaScript (if/else)
+
+Think of it like:
+
+```js
+function apiResponse(value) {
+  if (typeof value === "string") {
+    return { message: value };
+  } else {
+    return { data: value };
+  }
+}
+```
+
+The **difference**: in TypeScript, this happens **at type level** (during compilation), not at runtime.
+
+---
+
+✅ So:
+
+* `T extends string ? X : Y` is a **conditional type**.
+
+
 #### Template Literal Types
 
 ```typescript
@@ -1111,6 +1498,134 @@ type ClickEvent = EventName<"click">; // "onClick"
 type HttpUrl = `http://${string}`;
 type HttpsUrl = `https://${string}`;
 ```
+
+## 1. Basic Idea
+
+In JavaScript you can do:
+
+```js
+const name = "Click";
+const eventName = `on${name}`; // "onClick"
+```
+
+Template literal types do the **same thing at the type level**.
+
+---
+
+## 2. Example 1 – EventName
+
+```ts
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type ClickEvent = EventName<"click">; // "onClick"
+```
+
+### How it works:
+
+* `T extends string` → ensures we only pass strings.
+* \`on\${Capitalize<T>}\` → constructs a new string **type**:
+
+  * Prefix `"on"`
+  * Then **capitalize** the string `T`.
+
+👉 If `T = "click"`, result = `"onClick"`.
+
+---
+
+## 3. Example 2 – HttpUrl and HttpsUrl
+
+```ts
+type HttpUrl = `http://${string}`;
+type HttpsUrl = `https://${string}`;
+```
+
+### How it works:
+
+* `${string}` means **any string can go here**.
+* So:
+
+  * `HttpUrl` = any string that starts with `"http://"`
+  * `HttpsUrl` = any string that starts with `"https://"`
+
+Examples:
+
+```ts
+let a: HttpUrl = "http://google.com";   // ✅ OK
+let b: HttpsUrl = "https://openai.com"; // ✅ OK
+let c: HttpUrl = "ftp://server.com";    // ❌ Error (must start with http://)
+```
+
+---
+
+## 4. Better / Real-Life Examples 🚀
+
+### (a) CSS Units
+
+```ts
+type CssLength = `${number}px` | `${number}em` | `${number}rem`;
+
+let width: CssLength;
+
+width = "100px";  // ✅ OK
+width = "2em";    // ✅ OK
+width = "20";     // ❌ Error, must have unit
+```
+
+---
+
+### (b) API Routes
+
+```ts
+type UserApi = `/users/${number}`;
+type PostApi = `/posts/${number}`;
+
+let userUrl: UserApi = "/users/123";   // ✅
+let postUrl: PostApi = "/posts/456";   // ✅
+let invalid: UserApi = "/user/1";      // ❌ typo, does not match
+```
+
+---
+
+### (c) Event System
+
+```ts
+type EventName<T extends string> = `on${Capitalize<T>}`;
+
+type ButtonEvents = EventName<"click" | "hover" | "focus">;
+// Result = "onClick" | "onHover" | "onFocus"
+
+let event: ButtonEvents;
+
+event = "onClick"; // ✅
+event = "onHover"; // ✅
+event = "click";   // ❌ Error
+```
+
+---
+
+### (d) File Extensions
+
+```ts
+type FileExtension = `${string}.${"jpg" | "png" | "gif"}`;
+
+let img: FileExtension;
+
+img = "photo.jpg";   // ✅
+img = "banner.png";  // ✅
+img = "doc.pdf";     // ❌ Error
+```
+
+---
+
+## ✅ Key Points
+
+* Template literal types = **string concatenation at type level**.
+* You can use:
+
+  * `${string}`, `${number}`, `${boolean}`
+  * Built-in helpers: `Uppercase<T>`, `Lowercase<T>`, `Capitalize<T>`, `Uncapitalize<T>`.
+* Great for **strict typing** in APIs, routes, events, CSS, etc.
+
+
 
 **Use Cases:** Advanced type manipulation, library development, complex type relationships.
 
