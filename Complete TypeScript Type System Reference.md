@@ -1629,22 +1629,68 @@ img = "doc.pdf";     // ❌ Error
 
 **Use Cases:** Advanced type manipulation, library development, complex type relationships.
 
-## Type System Best Practices
 
-This comprehensive type system enables TypeScript to provide excellent static analysis, IntelliSense support, and compile-time error detection while maintaining JavaScript's flexibility.
+## **Type System Best Practices in TypeScript**
 
-### Choose the Right Type
+### **1. Choosing the Right Type**
 
-- Use **primitives** for simple values.
-- Use **interfaces** for object contracts.
-- Use **type aliases** for unions and complex types.
-- Use **generics** for reusable components.
-- Use **enums** for fixed sets of values.
+* ✅ Use **primitives** (`string`, `number`, `boolean`, `bigint`, `symbol`, `null`, `undefined`) for simple values.
+* ✅ Use **interfaces** for defining object contracts, especially for public APIs.
+* ✅ Use **type aliases** for:
 
-### Type Safety Guidelines
+  * Union types (`type Result = "success" | "error"`)
+  * Complex compositions
+  * Template literal types
+* ✅ Use **generics** for reusable, type-safe functions, classes, and components.
+* ✅ Use **enums** (or string literal unions) for fixed sets of values.
+* ✅ Use **tuples** when order and type of elements matter.
 
-- Avoid `any` - use `unknown` instead.
-- Use union types instead of `any` for flexibility.
-- Prefer interfaces over type aliases for objects.
-- Use readonly for immutable data.
-- Leverage utility types for transformations.
+---
+
+### **2. Type Safety Guidelines**
+
+* 🚫 Avoid `any` — use `unknown` instead when type is not yet known.
+* ✅ Use **union types** instead of `any` for flexible but safe typing.
+* ✅ Prefer **interfaces** over `type` aliases for object shapes (especially extendable ones).
+* ✅ Use `readonly` and `Readonly<T>` for immutable data.
+* ✅ Leverage **utility types** (`Partial`, `Required`, `Pick`, `Omit`, `Record`, `ReturnType`, `Parameters`, etc.) to transform types instead of rewriting them manually.
+
+---
+
+### **3. Function & API Design**
+
+* ✅ Always annotate **function return types** (don’t rely solely on inference in public APIs).
+* ✅ Mark function parameters as **optional** (`param?: T`) instead of using `null | undefined`.
+* ✅ Use **default parameter values** for optional arguments when possible.
+* ✅ Use **never** for functions that always throw or never return.
+
+---
+
+### **4. Object & Data Modeling**
+
+* ✅ Use **mapped types** to transform or enforce rules across object shapes.
+* ✅ Use `keyof` to reference keys of existing types instead of hardcoding.
+
+---
+
+### **5. Code Organization & Maintainability**
+
+* ✅ Keep types **DRY** (Don’t Repeat Yourself) — extract common shapes into reusable types/interfaces.
+* ✅ Export and centralize types in `types.ts` files for large projects.
+
+---
+
+### **6. Advanced Practices**
+
+* ✅ Use **conditional types** (`T extends U ? X : Y`) for flexibility.
+* ✅ Use **template literal types** for expressive string patterns.
+* ✅ Avoid **excessive nesting** of conditional/mapped types — keep them readable.
+* ✅ Prefer **type inference** in local/private code, but enforce explicit types in public APIs.
+
+---
+
+🔥 **Golden Rule:**
+
+> **TypeScript types should describe the intent of your code, not fight the compiler.**
+> Strive for safety, clarity, and maintainability — not over-engineering.
+
