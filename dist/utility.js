@@ -31,4 +31,29 @@ function PrintUser(user) {
 }
 const immutableUser = { id: 1, name: "ashutosh", email: "test@test.com", password: "12345" };
 PrintUser(immutableUser);
+const statusMessages = {
+    success: "Operation was successful",
+    error: "There was an error",
+    loading: "Loading..."
+};
+console.log(statusMessages);
+function printText(text) {
+    console.log("Text:", text);
+}
+printText("Hello, World!");
+let a = 123;
+let b = "abc";
+// let c:T2=undefined;
+let d = true;
+let u1 = { id: 1, name: "ashutosh" };
+let u2 = null;
+let u3 = undefined;
+let u4 = "abc";
+let u5 = 123;
+let su1 = { id: 1, name: "ashutosh" };
+//   let su2:safeUser=null; // ❌ Error: Type 'null'
+//   let su3:safeUser=undefined; // ❌ Error: Type 'undefined 
+//   let u6:User1=true; // ❌ Error: Type 'true'
+let su4 = "abc";
+let su5 = 123;
 //# sourceMappingURL=utility.js.map
